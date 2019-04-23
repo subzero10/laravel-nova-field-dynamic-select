@@ -49,9 +49,7 @@ export default {
     methods: {
         addFlexibleContentPrefix(item, field) {
             var splitted = field.attribute.toLowerCase().split('__');
-            if (splitted.length === 2) {
-                return splitted[0] + '__' + item;
-            }
+            return (splitted.length === 2 ? splitted[0] + '__' : '') + item;
         },
 
         removeFlexibleContentPrefix(field) {
