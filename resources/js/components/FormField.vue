@@ -31,10 +31,9 @@ export default {
     },
 
     created() {
-        console.log()
         if (this.field.dependsOn) {
             this.field.dependsOn.forEach(function(item) {
-                Nova.$on("nova-dynamic-select-changed-" + item, this.onDependencyChanged);
+                Nova.$on("nova-dynamic-select-changed-" + this.addFlexibleContentPrefix(item, this.field), this.onDependencyChanged);
             }, this);
         }
     },
@@ -42,12 +41,23 @@ export default {
     beforeDestroy() {
         if (this.field.dependsOn) {
             this.field.dependsOn.forEach(function(item) {
-                Nova.$off("nova-dynamic-select-changed-" + item, this.onDependencyChanged);
+                Nova.$off("nova-dynamic-select-changed-" + this.addFlexibleContentPrefix(item, this.field), this.onDependencyChanged);
             }, this);
         }
     },
 
     methods: {
+        addFlexibleContentPrefix(item, field) {
+            var splitted = field.attribute.toLowerCase().split('__');
+            if (splitted.length === 2) {
+                return splitted[0] + '__' + item;
+            }
+        },
+
+        removeFlexibleContentPrefix(field) {
+            return field.split('__').length === 2 ? field.split('__')[field.split('__').length - 1] : field
+        },
+
         /*
          * Set the initial, internal value for the field.
          */
@@ -55,7 +65,7 @@ export default {
             this.options = this.field.options;
 
             if(this.field.value) {
-                this.value = this.options.find(item => item['value'] === this.field.value);
+                this.value = this.options.find(item => item['value'] == this.field.value);
             }
         },
 
@@ -76,7 +86,7 @@ export default {
         },
 
         getDependValues(value, field) {
-            this.field.dependValues[field] = value;
+            this.field.dependValues[this.removeFlexibleContentPrefix(field)] = value;
             return this.field.dependValues;
         },
 
@@ -93,12 +103,12 @@ export default {
                 field: this.field
             });
             this.options = (await Nova.request().post("/nova-vendor/dynamic-select/options/"+this.resourceName, {
-                attribute: this.field.attribute,
+                attribute: this.removeFlexibleContentPrefix(this.field.attribute),
                 depends: this.getDependValues(dependsOnValue.value, dependsOnValue.field.attribute.toLowerCase())
             })).data.options;
 
             if(this.value) {
-                this.value = this.options.find(item => item['value'] === this.value['value']);
+                this.value = this.options.find(item => item['value'] == this.value['value']);
             }
         }
     },
