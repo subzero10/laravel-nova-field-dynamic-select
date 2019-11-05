@@ -71,9 +71,7 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            if(this.value) {
-                formData.append(this.field.attribute, this.value.value)
-            }
+            formData.append(this.field.attribute, typeof this.value == 'undefined' ? '' : this.value.value)
         },
 
         /**
