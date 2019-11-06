@@ -71,7 +71,10 @@ export default {
          * Fill the given FormData object with the field's internal value.
          */
         fill(formData) {
-            formData.append(this.field.attribute, typeof this.value == 'undefined' ? '' : this.value.value)
+            formData.append(
+                this.field.attribute,
+                typeof this.value == 'undefined' || this.value === null ? '' : this.value.value
+            )
         },
 
         /**
@@ -88,7 +91,7 @@ export default {
 
         async onChange(row) {
             Nova.$emit("nova-dynamic-select-changed-" + this.field.attribute.toLowerCase(), {
-                value: row.value,
+                value: row ? row.value : null,
                 field: this.field
             });
         },
