@@ -74,7 +74,7 @@ export default {
         fill(formData) {
             formData.append(
                 this.field.attribute,
-                typeof this.value == 'undefined' || this.value === null ? '' : this.value.value
+                typeof this.value == 'undefined' || !this.value ? '' : this.value.value
             )
         },
 
