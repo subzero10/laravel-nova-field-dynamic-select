@@ -5,6 +5,7 @@
                 v-model="value"
                 :options="options"
                 :searchable="true"
+                :disabled="isReadonly"
                 track-by="value"
                 label="label"
                 placeholder="Pick a value"
