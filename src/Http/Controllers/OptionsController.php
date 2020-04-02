@@ -14,7 +14,13 @@ class OptionsController extends Controller
         $dependValues = $request->input('depends');
 
         $resource = $request->newResource();
-        $fields = $resource->updateFields($request);
+
+        // Nova tabs compatibility:
+        // https://github.com/eminiarts/nova-tabs
+        $fields = method_exists($resource, 'parentUpdateFields')
+            ? $resource->parentUpdateFields($request)
+            : $resource->updateFields($request);
+
         $field = $fields->findFieldByAttribute($attribute);
 
         // Flexible content compatibility:
