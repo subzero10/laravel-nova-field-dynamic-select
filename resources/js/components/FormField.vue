@@ -34,7 +34,8 @@ export default {
     created() {
         if (this.field.dependsOn) {
             this.field.dependsOn.forEach(function(item) {
-                Nova.$on("nova-dynamic-select-changed-" + this.addFlexibleContentPrefix(item, this.field), this.onDependencyChanged);
+                let dependsOn = this.checkForNestedForm() ? this.addNestedFormPrefix() : this.addFlexibleContentPrefix(item, this.field);
+                Nova.$on("nova-dynamic-select-changed-" + dependsOn, this.onDependencyChanged);
             }, this);
         }
     },
@@ -42,12 +43,28 @@ export default {
     beforeDestroy() {
         if (this.field.dependsOn) {
             this.field.dependsOn.forEach(function(item) {
-                Nova.$off("nova-dynamic-select-changed-" + this.addFlexibleContentPrefix(item, this.field), this.onDependencyChanged);
+                let dependsOn = this.checkForNestedForm() ? this.addNestedFormPrefix() : this.addFlexibleContentPrefix(item, this.field);
+                Nova.$off("nova-dynamic-select-changed-" + dependsOn, this.onDependencyChanged);
             }, this);
         }
     },
 
     methods: {
+
+        /*
+         * Check if a property exists, set by Nested Forms package
+         */
+        checkForNestedForm() {
+            return this.field.hasOwnProperty('originalAttribute');
+        },
+
+        /*
+         * Adds the nested version of the attribute
+         */
+        addNestedFormPrefix() {
+            return this.field.attribute.replace(/\[[^\][]*\]$/, '['+ this.field.dependsOn +']');
+        },
+
         addFlexibleContentPrefix(item, field) {
             var splitted = field.attribute.toLowerCase().split('__');
             return (splitted.length === 2 ? splitted[0] + '__' : '') + item;
@@ -102,9 +119,14 @@ export default {
                 value: this.value,
                 field: this.field
             });
+
+            let originalDependsOnAttribute = this.field.originalAttribute
+                ? dependsOnValue.field.originalAttribute.toLowerCase()
+                : dependsOnValue.field.attribute.toLowerCase();
+
             this.options = (await Nova.request().post("/nova-vendor/dynamic-select/options/"+this.resourceName, {
-                attribute: this.removeFlexibleContentPrefix(this.field.attribute),
-                depends: this.getDependValues(dependsOnValue.value, dependsOnValue.field.attribute.toLowerCase())
+                attribute: this.field.originalAttribute ? this.field.originalAttribute : this.removeFlexibleContentPrefix(this.field.attribute),
+                depends: this.getDependValues(dependsOnValue.value, originalDependsOnAttribute)
             })).data.options;
 
             if(this.value) {
