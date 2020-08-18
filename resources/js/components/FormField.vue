@@ -50,10 +50,17 @@ export default {
     },
 
     methods: {
+
+        /*
+         * Check if a property exists, set by Nested Forms package
+         */
         checkForNestedForm() {
             return this.field.hasOwnProperty('originalAttribute');
         },
 
+        /*
+         * Adds the nested version of the attribute
+         */
         addNestedFormPrefix() {
             return this.field.attribute.replace(/\[[^\][]*\]$/, '['+ this.field.dependsOn +']');
         },
