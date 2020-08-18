@@ -55,7 +55,7 @@ export default {
         },
 
         addNestedFormPrefix() {
-            return this.field.attribute.replace(/\[[^\][]*\]$/, '['+ this.field.dependsOn +']');
+            return this.field.attribute.replace(/\[[^\][]*\]$/, '['+ this.field.dependsOn +']'); 
         },
 
         addFlexibleContentPrefix(item, field) {
