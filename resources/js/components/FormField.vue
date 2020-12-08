@@ -7,7 +7,10 @@
                 :searchable="true"
                 track-by="value"
                 label="label"
-                placeholder="Pick a value"
+                :placeholder="field.placeholder"
+                :selectLabel="field.selectLabel"
+                :deselectLabel="field.deselectLabel"
+                :selectedLabel="field.selectedLabel"
                 @input="onChange">
             </multiselect>
         </template>
