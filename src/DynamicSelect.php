@@ -10,10 +10,6 @@ class DynamicSelect extends Field
 {
     use HasDynamicOptions;
     use DependsOnAnotherField;
-    protected $placeholder = null;
-    protected $selectLabel = null;
-    protected $deselectLabel = null;
-    protected $selectedLabel = null;
 
     public $component = 'dynamic-select';
 
@@ -31,10 +27,10 @@ class DynamicSelect extends Field
             'options' => $this->getOptions($this->dependentValues),
             'dependsOn' => $this->getDependsOn(),
             'dependValues' => $this->dependentValues,
-            'placeholder' => $this->placeholder,
-            'selectLabel' => $this->selectLabel,
-            'deselectLabel' => $this->deselectLabel,
-            'selectedLabel' => $this->selectedLabel
+            'placeholder' => __('Pick a value'),
+            'selectLabel' => __('Press enter to select'),
+            'deselectLabel' => __('Press enter to remove'),
+            'selectedLabel' => __('Selected')
         ], $this->meta);
     }
 }
