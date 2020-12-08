@@ -26,7 +26,7 @@ class DynamicSelect extends Field
         return array_merge([
             'options' => $this->getOptions($this->dependentValues),
             'dependsOn' => $this->getDependsOn(),
-            'dependValues' => $this->dependentValues,
+            'dependValues' => count($this->dependentValues) ? $this->dependentValues :  new \ArrayObject(),
             'placeholder' => __('Pick a value'),
             'selectLabel' => __('Press enter to select'),
             'deselectLabel' => __('Press enter to remove'),

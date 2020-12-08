@@ -14,8 +14,30 @@ class OptionsController extends Controller
         $dependValues = $request->input('depends');
 
         $resource = $request->newResource();
-        $fields = $resource->updateFields($request);
+
+        // Nova tabs compatibility:
+        // https://github.com/eminiarts/nova-tabs
+        $fields = method_exists($resource, 'parentUpdateFields')
+            ? $resource->parentUpdateFields($request)
+            : $resource->updateFields($request);
+
         $field = $fields->findFieldByAttribute($attribute);
+
+        // Flexible content compatibility:
+        // https://github.com/whitecube/nova-flexible-content
+        if (!$field) {
+            foreach ($fields as $updateField) {
+                if ($updateField->component == 'nova-flexible-content') {
+                    foreach ($updateField->meta['layouts'] as $layout) {
+                        foreach ($layout->fields() as $layoutField) {
+                            if ($layoutField->attribute == $attribute) {
+                                $field = $layoutField;
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         /** @var DynamicSelect $field */
         $options = $field->getOptions($dependValues);
