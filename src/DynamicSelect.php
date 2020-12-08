@@ -27,6 +27,10 @@ class DynamicSelect extends Field
             'options' => $this->getOptions($this->dependentValues),
             'dependsOn' => $this->getDependsOn(),
             'dependValues' => count($this->dependentValues) ? $this->dependentValues :  new \ArrayObject(),
+            'placeholder' => __('Pick a value'),
+            'selectLabel' => __('Press enter to select'),
+            'deselectLabel' => __('Press enter to remove'),
+            'selectedLabel' => __('Selected')
         ], $this->meta);
     }
 }
