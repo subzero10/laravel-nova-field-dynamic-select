@@ -80,7 +80,7 @@ class DynamicSelect extends Field
     }
 
 
-    protected function fillAttributeFromRequest(Request $request, $requestAttribute, $model, $attribute)
+    protected function fillAttributeFromRequest(NovaRequest $request, $requestAttribute, $model, $attribute)
     {
         if ($this->multiselect) {
             $values = $request->input($requestAttribute) ?? null;
