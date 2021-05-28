@@ -114,6 +114,8 @@ class DynamicSelect extends Field
 
     public function forAction(string $className) {
         $this->action = $className;
+
+        return $this;
     }
 
     public function meta()
