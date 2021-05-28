@@ -13,7 +13,27 @@ class OptionsController extends Controller
         $attribute = $request->input('attribute');
         $dependValues = $request->input('depends');
 
+        if ($request->has('action')) {
+            $field = $this->getFieldFromAction($request, $attribute);
+        }
+        else {
+            $field = $this->getFieldFromResource($request, $attribute);
+        }
+
+        abort_if(is_null($field), 400);
+
+        /** @var DynamicSelect $field */
+        $options = $field->getOptions($dependValues);
+
+        return [
+            'options' => $options,
+        ];
+    }
+
+    private function getFieldFromResource(NovaRequest $request, $attribute) {
         $resource = $request->newResource();
+
+        $field = null;
 
         // Nova tabs compatibility:
         // https://github.com/eminiarts/nova-tabs
@@ -42,8 +62,8 @@ class OptionsController extends Controller
                         }
                     }
 
-                // Dependency container compatibility:
-                // https://github.com/epartment/nova-dependency-container
+                    // Dependency container compatibility:
+                    // https://github.com/epartment/nova-dependency-container
                 } elseif ($updateField->component == 'nova-dependency-container') {
                     foreach ($updateField->meta['fields'] as $layoutField) {
                         if ($layoutField->attribute === $attribute) {
@@ -51,8 +71,8 @@ class OptionsController extends Controller
                         }
                     }
 
-                // Conditional container compatibility:
-                // https://github.com/dcasia/conditional-container
+                    // Conditional container compatibility:
+                    // https://github.com/dcasia/conditional-container
                 } elseif ($updateField->component === 'conditional-container') {
                     foreach ($updateField->fields as $layouts) {
                         if ($layouts->component === 'nova-flexible-content') {
@@ -69,11 +89,14 @@ class OptionsController extends Controller
             }
         }
 
-        /** @var DynamicSelect $field */
-        $options = $field->getOptions($dependValues);
+        return $field;
+    }
 
-        return [
-            'options' => $options,
-        ];
+    private function getFieldFromAction(NovaRequest $request, $attribute) {
+        $class = $request->input('action');
+        $action = new $class();
+        return collect($action->fields())->first(function ($f) use ($attribute) {
+            return $f->attribute === $attribute;
+        });
     }
 }

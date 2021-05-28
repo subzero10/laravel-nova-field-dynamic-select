@@ -142,9 +142,19 @@ export default {
                 ? dependsOnValue.field.originalAttribute.toLowerCase()
                 : dependsOnValue.field.attribute.toLowerCase();
 
+            const depends = this.getDependValues(dependsOnValue.value, originalDependsOnAttribute);
+            let jsoned = {};
+            for (let i in depends) {
+                if (!depends.hasOwnProperty(i)) {
+                    continue;
+                }
+                jsoned[i] = depends[i];
+            }
+
             this.options = (await Nova.request().post("/nova-vendor/dynamic-select/options/"+this.resourceName, {
                 attribute: this.field.originalAttribute ? this.field.originalAttribute : this.removeFlexibleContentPrefix(this.field.attribute),
-                depends: this.getDependValues(dependsOnValue.value, originalDependsOnAttribute)
+                depends: this.getDependValues(dependsOnValue.value, originalDependsOnAttribute),
+                action: this.field.action,
             })).data.options;
 
             if(this.value) {
