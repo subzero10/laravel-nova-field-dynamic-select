@@ -12,9 +12,10 @@ composer require royduin/laravel-nova-field-dynamic-select
 
 ## Usage
 
-Class have 2 special methods on top of default Select from Laravel Nova.
+Class has 3 special methods on top of default Select from Laravel Nova.
 - `dependsOn` can take a list of other fields this one depends on.
-- `options` can be either an array or a callable. 
+- `options` can be either an array or a callable.
+- `forAction` to indicate that the dynamic select is running in an action
 
 If its a callable, it will receive array with selected dependency values as first argument and should return an array of items to be shown on the select field.
 
@@ -53,3 +54,39 @@ public function fields(Request $request)
 
 ```
 
+## Example for use in Nova Actions
+
+```
+public function fields(Request $request)
+{
+    return [
+        ID::make()->sortable(),
+
+        DynamicSelect::make('Country', 'country')
+            ->forAction(self::class)
+            ->options(['US' => 'United States', 'UK' => 'United Kingdom'])
+            ->rules('required')
+        ,
+
+        DynamicSelect::make('Provider', 'provider')
+            ->forAction(self::class)
+            ->options(['PR' => 'Premium', 'ST' => 'Standard'])
+            ->rules('required')
+        ,
+
+        DynamicSelect::make('Product', 'product')
+            ->forAction(self::class)
+            ->dependsOn(['country', 'provider'])
+            ->options(function($values) { 
+                if($values['country'] === 'UK' && $values['provider'] === 'PR') {
+                    return ['A' => 'Fast shipping', 'B' => 'Normal shipping', 'C' => 'Free shipping'];
+                } else {
+                    return ['A' => 'Fast shipping', 'B' => 'Normal shipping'];
+                }
+            })
+            ->rules('required')
+        ,
+    ];
+}
+
+```

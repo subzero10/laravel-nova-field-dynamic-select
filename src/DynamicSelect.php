@@ -17,6 +17,7 @@ class DynamicSelect extends Field
     public $component = 'dynamic-select';
     public $labelKey;
     public $multiselect = false;
+    public $action = null;
 
     public function resolve($resource, $attribute = null)
     {
@@ -111,6 +112,12 @@ class DynamicSelect extends Field
         return $this;
     }
 
+    public function forAction(string $className) {
+        $this->action = $className;
+
+        return $this;
+    }
+
     public function meta()
     {
         $this->meta = parent::meta();
@@ -124,6 +131,7 @@ class DynamicSelect extends Field
             'selectedLabel' => __('Selected'),
             'labelKey' => $this->labelKey,
             'multiselect' => $this->multiselect,
+            'action' => $this->action
         ], $this->meta);
     }
 }
