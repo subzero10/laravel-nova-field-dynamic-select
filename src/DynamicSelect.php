@@ -4,6 +4,7 @@ namespace Hubertnnn\LaravelNova\Fields\DynamicSelect;
 
 use RuntimeException;
 use Hubertnnn\LaravelNova\Fields\DynamicSelect\Traits\DependsOnAnotherField;
+use Hubertnnn\LaravelNova\Fields\DynamicSelect\Traits\HasDynamicDefaultValue;
 use Hubertnnn\LaravelNova\Fields\DynamicSelect\Traits\HasDynamicOptions;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Field;
@@ -12,6 +13,7 @@ use Laravel\Nova\Http\Requests\NovaRequest;
 class DynamicSelect extends Field
 {
     use HasDynamicOptions;
+    use HasDynamicDefaultValue;
     use DependsOnAnotherField;
 
     public $component = 'dynamic-select';
