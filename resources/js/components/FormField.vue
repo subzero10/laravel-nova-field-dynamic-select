@@ -167,8 +167,6 @@ export default {
             if (!this.value && this.defaultValue) {
                 this.value = this.defaultValue;
             }
-
-            this.$forceUpdate();
         }
     },
 }
