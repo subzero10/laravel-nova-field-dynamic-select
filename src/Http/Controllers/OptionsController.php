@@ -24,9 +24,11 @@ class OptionsController extends Controller
 
         /** @var DynamicSelect $field */
         $options = $field->getOptions($dependValues);
+        $default = $field->getDefaultValue($dependValues);
 
         return [
             'options' => $options,
+            'default' => $default
         ];
     }
 
@@ -50,37 +52,61 @@ class OptionsController extends Controller
         }
 
         if (!isset($field)) {
-            foreach ($fields as $updateField) {
-                // Flexible content compatibility:
-                // https://github.com/whitecube/nova-flexible-content
-                if ($updateField->component == 'nova-flexible-content') {
-                    foreach ($updateField->meta['layouts'] as $layout) {
-                        foreach ($layout->fields() as $layoutField) {
-                            if ($layoutField->attribute === $attribute) {
-                                $field = $layoutField;
-                            }
-                        }
-                    }
+            $field = $this->getFieldFromComplexFields($fields, $attribute);
+        }
 
-                    // Dependency container compatibility:
-                    // https://github.com/epartment/nova-dependency-container
-                } elseif ($updateField->component == 'nova-dependency-container') {
-                    foreach ($updateField->meta['fields'] as $layoutField) {
+        return $field;
+    }
+
+    private function getFieldFromAction(NovaRequest $request, $attribute) {
+        $class = $request->input('action');
+        $action = new $class();
+
+        $fields = $action->fields();
+        $field = collect($fields)->first(function ($f) use ($attribute) {
+            return $f->attribute === $attribute;
+        });
+
+        if (!$field) {
+            $field = $this->getFieldFromComplexFields($fields, $attribute);
+        }
+
+        return $field;
+    }
+
+    private function getFieldFromComplexFields(array $fields, string $attribute) {
+        $field = null;
+
+        foreach ($fields as $updateField) {
+            // Flexible content compatibility:
+            // https://github.com/whitecube/nova-flexible-content
+            if ($updateField->component == 'nova-flexible-content') {
+                foreach ($updateField->meta['layouts'] as $layout) {
+                    foreach ($layout->fields() as $layoutField) {
                         if ($layoutField->attribute === $attribute) {
                             $field = $layoutField;
                         }
                     }
+                }
 
-                    // Conditional container compatibility:
-                    // https://github.com/dcasia/conditional-container
-                } elseif ($updateField->component === 'conditional-container') {
-                    foreach ($updateField->fields as $layouts) {
-                        if ($layouts->component === 'nova-flexible-content') {
-                            foreach ($layouts->meta['layouts'] as $layout) {
-                                foreach ($layout->fields() as $layoutField) {
-                                    if ($layoutField->attribute === $attribute) {
-                                        $field = $layoutField;
-                                    }
+                // Dependency container compatibility:
+                // https://github.com/epartment/nova-dependency-container
+            } elseif ($updateField->component == 'nova-dependency-container') {
+                foreach ($updateField->meta['fields'] as $layoutField) {
+                    if ($layoutField->attribute === $attribute) {
+                        $field = $layoutField;
+                    }
+                }
+
+                // Conditional container compatibility:
+                // https://github.com/dcasia/conditional-container
+            } elseif ($updateField->component === 'conditional-container') {
+                foreach ($updateField->fields as $layouts) {
+                    if ($layouts->component === 'nova-flexible-content') {
+                        foreach ($layouts->meta['layouts'] as $layout) {
+                            foreach ($layout->fields() as $layoutField) {
+                                if ($layoutField->attribute === $attribute) {
+                                    $field = $layoutField;
                                 }
                             }
                         }
@@ -90,13 +116,5 @@ class OptionsController extends Controller
         }
 
         return $field;
-    }
-
-    private function getFieldFromAction(NovaRequest $request, $attribute) {
-        $class = $request->input('action');
-        $action = new $class();
-        return collect($action->fields())->first(function ($f) use ($attribute) {
-            return $f->attribute === $attribute;
-        });
     }
 }

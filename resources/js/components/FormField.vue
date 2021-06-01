@@ -31,6 +31,7 @@ export default {
 
     data() {
         return {
+            defaultValue: null,
             options: []
         };
     },
@@ -151,15 +152,23 @@ export default {
                 jsoned[i] = depends[i];
             }
 
-            this.options = (await Nova.request().post("/nova-vendor/dynamic-select/options/"+this.resourceName, {
+            const resp = (await Nova.request().post("/nova-vendor/dynamic-select/options/"+this.resourceName, {
                 attribute: this.field.originalAttribute ? this.field.originalAttribute : this.removeFlexibleContentPrefix(this.field.attribute),
                 depends: this.getDependValues(dependsOnValue.value, originalDependsOnAttribute),
                 action: this.field.action,
-            })).data.options;
+            })).data;
+
+            this.defaultValue = resp.default;
+            this.options = resp.options;
 
             if(this.value) {
                 this.value = this.options.find(item => item['value'] == this.value['value']);
             }
+            if (!this.value && this.defaultValue) {
+                this.value = this.defaultValue;
+            }
+
+            this.$forceUpdate();
         }
     },
 }
