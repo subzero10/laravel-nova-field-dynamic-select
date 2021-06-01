@@ -161,14 +161,15 @@ export default {
                 action: this.field.action,
             })).data;
 
+            const shouldModify = this.value && this.defaultValue && this.value['value'] === this.defaultValue['value'];
             this.isLoading = false;
             this.defaultValue = resp.default;
             this.options = resp.options;
 
-            if(this.value) {
+            if (this.value) {
                 this.value = this.options.find(item => item['value'] == this.value['value']);
             }
-            if (!this.value && this.defaultValue) {
+            if (this.defaultValue && (!this.value || shouldModify)) {
                 this.value = this.defaultValue;
             }
         }
